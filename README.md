@@ -65,7 +65,7 @@ Try these example prompts in the input box:
 
 ## Demo Video
 
-[link]
+https://drive.google.com/file/d/1rY3_awJz51oNWvmTeneU6EzG4OEAvG7B/view?usp=sharing
 
 ## Team
 
