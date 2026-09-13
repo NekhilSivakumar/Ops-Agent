@@ -1,0 +1,23 @@
+{
+  "namespaces": {
+    "prod": {
+      "deployments": {
+        "auth-service": { "pods": 8, "replicas": 8 },
+        "payments-service": { "pods": 12, "replicas": 12 },
+        "notifications-service": { "pods": 4, "replicas": 4 }
+      }
+    },
+    "staging": {
+      "deployments": {
+        "auth-service": { "pods": 2, "replicas": 2 },
+        "payments-service": { "pods": 2, "replicas": 2 }
+      }
+    },
+    "dev": {
+      "deployments": {
+        "auth-service": { "pods": 1, "replicas": 1 },
+        "payments-service": { "pods": 1, "replicas": 1 }
+      }
+    }
+  }
+}

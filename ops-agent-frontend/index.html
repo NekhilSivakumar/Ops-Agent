@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Guardrailed Ops Agent</title>
+<style>
+  body { background:#0d1117; color:#c9d1d9; font-family: 'Consolas', monospace; padding:2rem; }
+  #history { max-width:700px; margin:0 auto; }
+  .entry { margin-bottom:1.5rem; }
+  .prompt { color:#58a6ff; }
+  .command { background:#161b22; padding:8px; border-radius:6px; margin-top:4px; }
+  .safe { border-left:4px solid #3fb950; padding-left:10px; }
+  .danger { border-left:4px solid #f85149; padding-left:10px; background:#2d1518; padding:10px; border-radius:6px; }
+  .output { color:#8b949e; margin-top:6px; white-space:pre-wrap; }
+  #inputRow { max-width:700px; margin:2rem auto; display:flex; gap:8px; }
+  #userInput { flex:1; padding:10px; background:#161b22; border:1px solid #30363d; color:#c9d1d9; border-radius:6px; }
+  button { padding:10px 16px; background:#238636; color:white; border:none; border-radius:6px; cursor:pointer; }
+  button:hover { background:#2ea043; }
+  .confirmBtn { background:#da3633; }
+</style>
+</head>
+<body>
+
+<h2 style="text-align:center;">🛡️ Guardrailed Ops Agent</h2>
+<div id="history"></div>
+<div id="inputRow">
+  <input id="userInput" placeholder="e.g. delete auth-service deployment in prod" />
+  <button onclick="handleSubmit()">Run</button>
+</div>
+
+<script>
+// ---- STEP 12: MOCK CLUSTER STATE ----
+const mockCluster = {
+  prod: {
+    "auth-service": { pods: 8, replicas: 8 },
+    "payments-service": { pods: 12, replicas: 12 }
+  },
+  staging: {
+    "auth-service": { pods: 2, replicas: 2 }
+  },
+  dev: {
+    "auth-service": { pods: 1, replicas: 1 }
+  }
+};
+
+function getBlastRadius(namespace, resourceName) {
+  const ns = mockCluster[namespace];
+  if (!ns || !ns[resourceName]) {
+    return { found: false, pods: 0 };
+  }
+  return { found: true, pods: ns[resourceName].pods };
+}
+
+async function callBackend(input) {
+  const res = await fetch('http://localhost:3001/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input })
+  });
+  return await res.json();
+}
+
+async function handleSubmit() {
+  const input = document.getElementById('userInput').value.trim();
+  if (!input) return;
+  document.getElementById('userInput').value = '';
+
+  const history = document.getElementById('history');
+  const entry = document.createElement('div');
+  entry.className = 'entry';
+  entry.innerHTML = `<div class="prompt">$ ${input}</div><div class="command">Translating...</div>`;
+  history.appendChild(entry);
+
+  const result = await callBackend(input);
+  const blast = getBlastRadius(result.namespace, result.resource_name);
+
+  if (result.is_destructive) {
+    entry.innerHTML = `
+      <div class="prompt">$ ${input}</div>
+      <div class="danger">
+        ⚠️ <strong>${result.command}</strong><br>
+        Namespace: ${result.namespace} ${result.namespace === 'prod' ? '(PRODUCTION)' : ''}<br>
+        Affected pods: ${blast.found ? blast.pods : 'unknown'}<br>
+        Risk: ${result.risk_reason}<br>
+        This action is irreversible.<br>
+        <button class="confirmBtn" onclick="this.parentElement.innerHTML += '<div class=\\'output\\'>✅ Command executed (simulated).</div>'; this.remove();">Confirm & Run</button>
+      </div>`;
+  } else {
+    entry.innerHTML = `
+      <div class="prompt">$ ${input}</div>
+      <div class="safe">
+        ${result.command}
+        <div class="output">✅ Simulated output for ${result.resource_name} in ${result.namespace}</div>
+      </div>`;
+  }
+}
+
+document.getElementById('userInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleSubmit();
+});
+
+</script>
+</body>
+</html>

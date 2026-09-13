@@ -1,0 +1,29 @@
+[
+  {
+    "original_input": "delete the auth-service deployment in prod",
+    "command": "kubectl delete deployment auth-service -n prod",
+    "resource_type": "deployment",
+    "resource_name": "auth-service",
+    "namespace": "prod",
+    "is_destructive": true,
+    "risk_reason": "Deletes a running deployment in production"
+  },
+  {
+    "original_input": "show me pods in staging",
+    "command": "kubectl get pods -n staging",
+    "resource_type": "pod",
+    "resource_name": "*",
+    "namespace": "staging",
+    "is_destructive": false,
+    "risk_reason": "Read-only command, no changes made"
+  },
+  {
+    "original_input": "delete the payments-service deployment in prod",
+    "command": "kubectl delete deployment payments-service -n prod",
+    "resource_type": "deployment",
+    "resource_name": "payments-service",
+    "namespace": "prod",
+    "is_destructive": true,
+    "risk_reason": "Deletes a running deployment in production"
+  }
+]
