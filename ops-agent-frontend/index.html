@@ -29,7 +29,6 @@
 </div>
 
 <script>
-// ---- STEP 12: MOCK CLUSTER STATE ----
 const mockCluster = {
   prod: {
     "auth-service": { pods: 8, replicas: 8 },
@@ -98,7 +97,6 @@ async function handleSubmit() {
 document.getElementById('userInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') handleSubmit();
 });
-
 </script>
 </body>
 </html>

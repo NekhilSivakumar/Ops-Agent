@@ -1,0 +1,5 @@
+{
+  "main": { "unpushed_commits": 0, "protected": true },
+  "feature-x": { "unpushed_commits": 4, "protected": false },
+  "release-1.2": { "unpushed_commits": 0, "protected": true }
+}
